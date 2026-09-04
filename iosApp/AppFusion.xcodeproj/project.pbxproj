@@ -9,7 +9,18 @@
 		B10000000000000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* AppDelegate.swift */; };
 		B10000000000000000000003 /* AppFusionShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* AppFusionShared.framework */; };
 		B10000000000000000000005 /* AppFusionShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* AppFusionShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B20000000000000000000001 /* JourneyJ1UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* JourneyJ1UITests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B20000000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B10000000000000000000012 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B1000000000000000000000E;
+			remoteInfo = AppFusion;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		B10000000000000000000006 /* Embed Frameworks */ = {
@@ -28,21 +39,25 @@
 		B10000000000000000000004 /* AppFusionShared.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppFusionShared.framework; path = ../shared/build/bin/iosSimulatorArm64/debugFramework/AppFusionShared.framework; sourceTree = SOURCE_ROOT; };
 		B10000000000000000000007 /* AppFusion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppFusion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B10000000000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B20000000000000000000004 /* JourneyJ1UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyJ1UITests.swift; sourceTree = "<group>"; };
+		B20000000000000000000005 /* AppFusionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppFusionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		B10000000000000000000009 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000003 /* AppFusionShared.framework in Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
+		B20000000000000000000007 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		B1000000000000000000000A = {
 			isa = PBXGroup;
-			children = (B1000000000000000000000B /* AppFusion */, B1000000000000000000000C /* Frameworks */, B1000000000000000000000D /* Products */, );
+			children = (B1000000000000000000000B /* AppFusion */, B20000000000000000000006 /* AppFusionUITests */, B1000000000000000000000C /* Frameworks */, B1000000000000000000000D /* Products */, );
 			sourceTree = "<group>";
 		};
 		B1000000000000000000000B /* AppFusion */ = {isa = PBXGroup; children = (B10000000000000000000002 /* AppDelegate.swift */, B10000000000000000000008 /* Info.plist */, ); path = AppFusion; sourceTree = "<group>"; };
 		B1000000000000000000000C /* Frameworks */ = {isa = PBXGroup; children = (B10000000000000000000004 /* AppFusionShared.framework */, ); name = Frameworks; sourceTree = "<group>"; };
-		B1000000000000000000000D /* Products */ = {isa = PBXGroup; children = (B10000000000000000000007 /* AppFusion.app */, ); name = Products; sourceTree = "<group>"; };
+		B1000000000000000000000D /* Products */ = {isa = PBXGroup; children = (B10000000000000000000007 /* AppFusion.app */, B20000000000000000000005 /* AppFusionUITests.xctest */, ); name = Products; sourceTree = "<group>"; };
+		B20000000000000000000006 /* AppFusionUITests */ = {isa = PBXGroup; children = (B20000000000000000000004 /* JourneyJ1UITests.swift */, ); path = AppFusionUITests; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -57,12 +72,31 @@
 			productReference = B10000000000000000000007 /* AppFusion.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B2000000000000000000000A /* AppFusionUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B2000000000000000000000B /* Build configuration list for PBXNativeTarget "AppFusionUITests" */;
+			buildPhases = (B20000000000000000000008 /* Sources */, B20000000000000000000007 /* Frameworks */, B20000000000000000000009 /* Resources */, );
+			buildRules = ();
+			dependencies = (B20000000000000000000003 /* PBXTargetDependency */, );
+			name = AppFusionUITests;
+			productName = AppFusionUITests;
+			productReference = B20000000000000000000005 /* AppFusionUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		B10000000000000000000012 /* Project object */ = {
 			isa = PBXProject;
-			attributes = {BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 1640; LastUpgradeCheck = 1640; TargetAttributes = {B1000000000000000000000E = {CreatedOnToolsVersion = 16.4; }; }; };
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					B1000000000000000000000E = {CreatedOnToolsVersion = 16.4; };
+					B2000000000000000000000A = {CreatedOnToolsVersion = 16.4; TestTargetID = B1000000000000000000000E; };
+				};
+			};
 			buildConfigurationList = B10000000000000000000013 /* Build configuration list for PBXProject "AppFusion" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
@@ -72,17 +106,27 @@
 			productRefGroup = B1000000000000000000000D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (B1000000000000000000000E /* AppFusion */, );
+			targets = (B1000000000000000000000E /* AppFusion */, B2000000000000000000000A /* AppFusionUITests */, );
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		B10000000000000000000011 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		B20000000000000000000009 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B10000000000000000000010 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000001 /* AppDelegate.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
+		B20000000000000000000008 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B20000000000000000000001 /* JourneyJ1UITests.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B20000000000000000000003 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B1000000000000000000000E /* AppFusion */;
+			targetProxy = B20000000000000000000002 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		B10000000000000000000014 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; ENABLE_TESTABILITY = YES; GCC_C_LANGUAGE_STANDARD = gnu17; GCC_OPTIMIZATION_LEVEL = 0; ONLY_ACTIVE_ARCH = YES; SDKROOT = iphoneos; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; }; name = Debug; };
@@ -125,11 +169,44 @@
 			};
 			name = Release;
 		};
+		B2000000000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.appfusion.product.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = AppFusion;
+			};
+			name = Debug;
+		};
+		B2000000000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.appfusion.product.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = AppFusion;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
 		B1000000000000000000000F /* Build configuration list for PBXNativeTarget "AppFusion" */ = {isa = XCConfigurationList; buildConfigurations = (B10000000000000000000016 /* Debug */, B10000000000000000000017 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		B10000000000000000000013 /* Build configuration list for PBXProject "AppFusion" */ = {isa = XCConfigurationList; buildConfigurations = (B10000000000000000000014 /* Debug */, B10000000000000000000015 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		B2000000000000000000000B /* Build configuration list for PBXNativeTarget "AppFusionUITests" */ = {isa = XCConfigurationList; buildConfigurations = (B2000000000000000000000C /* Debug */, B2000000000000000000000D /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
 	};
 	rootObject = B10000000000000000000012 /* Project object */;
