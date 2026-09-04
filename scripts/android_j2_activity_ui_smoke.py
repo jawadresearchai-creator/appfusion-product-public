@@ -27,6 +27,17 @@ class ActivityJourney(AndroidJourney):
         x, y = self.find("text", text)
         self.command("shell", "input", "tap", str(x), str(y))
 
+    def scroll_to_top(self) -> None:
+        # The inherited finder scrolls toward later content. Reminder status lives above
+        # the activity list, so explicitly restore the viewport before asserting it.
+        x = str(self.width // 2)
+        for _ in range(3):
+            self.command(
+                "shell", "input", "swipe", x, str(int(self.height * .30)),
+                x, str(int(self.height * .82)), "250",
+            )
+            time.sleep(.25)
+
     def reminder_preferences(self) -> str:
         return self.command(
             "shell", "run-as", PACKAGE, "cat", "shared_prefs/appfusion-reminders.xml"
@@ -37,7 +48,7 @@ class ActivityJourney(AndroidJourney):
         (self.evidence / "j1-opened-document.png").replace(self.evidence / "j2-android-reminder.png")
 
 
-def run_activity_foundation(journey: AndroidJourney) -> None:
+def run_activity_foundation(journey: ActivityJourney) -> None:
     original_zone = journey.command("shell", "getprop", "persist.sys.timezone").strip()
     if not original_zone:
         raise RuntimeError("Cannot restore unknown emulator time zone")
@@ -59,7 +70,8 @@ def run_activity_foundation(journey: AndroidJourney) -> None:
         journey.tap("activity_save", scroll=True)
         journey.find("text", "1 activity record(s)", scroll=True)
         journey.find("text", "Completed: 0", scroll=True)
-        journey.find("text", "scheduled: 1", scroll=True)
+        journey.scroll_to_top()
+        journey.find("text", "scheduled: 1")
         journey.tap("activity_complete", scroll=True)
         journey.find("text", "Completed: 1", scroll=True)
         journey.tap("activity_history", scroll=True)
