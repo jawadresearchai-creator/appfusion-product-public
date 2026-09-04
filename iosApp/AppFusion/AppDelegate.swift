@@ -29,6 +29,8 @@ final class AppFusionViewController: UIViewController {
 
     private var runtime: AppleDocumentJourneyRuntime?
     private var currentResultId: String?
+    // The shared search projection is mutable; all vault operations share one queue.
+    private let vaultQueue = DispatchQueue(label: "com.appfusion.product.vault", qos: .userInitiated)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +39,8 @@ final class AppFusionViewController: UIViewController {
     }
 
     deinit {
-        runtime?.closeVault()
+        let runtime = runtime
+        vaultQueue.async { runtime?.closeVault() }
     }
 
     private func configureView() {
@@ -143,7 +146,7 @@ final class AppFusionViewController: UIViewController {
         searchButton.isEnabled = false
         status("Verifying encrypted document storage…", color: .secondaryLabel)
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        vaultQueue.async { [weak self] in
             guard let self else { return }
             let support = FileManager.default.urls(
                 for: .applicationSupportDirectory,
@@ -202,7 +205,7 @@ final class AppFusionViewController: UIViewController {
         saveButton.isEnabled = false
         status("Encrypting document…", color: .secondaryLabel)
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        vaultQueue.async { [weak self] in
             let result = runtime.createDocument(
                 id: id,
                 title: title,
@@ -239,7 +242,7 @@ final class AppFusionViewController: UIViewController {
         currentResultId = nil
         status("Searching verified local documents…", color: .secondaryLabel)
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        vaultQueue.async { [weak self] in
             let id = runtime.searchFirstDocumentId(query: query)
             let title = runtime.searchFirstDocumentTitle(query: query)
             DispatchQueue.main.async {
@@ -266,7 +269,7 @@ final class AppFusionViewController: UIViewController {
 
         resultButton.isEnabled = false
         status("Authenticating and decrypting…", color: .secondaryLabel)
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        vaultQueue.async { [weak self] in
             let body = runtime.readDocument(id: id)
             DispatchQueue.main.async {
                 guard let self else { return }

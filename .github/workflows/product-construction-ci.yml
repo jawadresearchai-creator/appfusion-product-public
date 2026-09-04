@@ -30,6 +30,8 @@ jobs:
           persist-credentials: false
       - name: Verify public-source and clean-room boundaries
         run: python scripts/verify_product.py
+      - name: Validate iOS test harness shell syntax
+        run: bash -n scripts/ios_j1_ui_ci.sh
       - name: Classify the minimum required platform gates
         id: changes
         shell: bash

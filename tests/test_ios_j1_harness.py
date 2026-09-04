@@ -36,3 +36,10 @@ class IosJ1HarnessTests(unittest.TestCase):
         self.assertIn("view.keyboardLayoutGuide.topAnchor", ui)
         self.assertIn('done.accessibilityIdentifier = "dismiss-keyboard"', ui)
         self.assertEqual(test.count("dismissKeyboard(in: app)"), 2)
+
+    def test_mutable_shared_vault_operations_use_one_serial_queue(self):
+        ui = (ROOT / "iosApp/AppFusion/AppDelegate.swift").read_text()
+        self.assertNotIn("DispatchQueue.global", ui)
+        self.assertIn('DispatchQueue(label: "com.appfusion.product.vault"', ui)
+        self.assertEqual(ui.count("vaultQueue.async { [weak self] in"), 4)
+        self.assertIn("vaultQueue.async { runtime?.closeVault() }", ui)

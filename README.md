@@ -1,9 +1,9 @@
 # AppFusion — Android and iOS
 
 Public, clean-room source for a modular, offline-first productivity application.
-The current development milestone includes encrypted document creation, search,
-restart recovery and reopening on Android. The iOS application is a simulator
-shell; its full document UI and remaining activity/reminder journeys are unfinished.
+The current development milestone implements encrypted document creation, search,
+restart recovery and reopening on Android and iOS, with installed journey gates
+in CI. Activity/reminder and cross-module journeys remain unfinished.
 
 This is a development prototype, not a production security or final release.
 Use disposable test data. Debug signing keys can differ between builds.
@@ -15,7 +15,9 @@ Use disposable test data. Debug signing keys can differ between builds.
 - `python scripts/verify_product.py` checks clean-room approval and public-source safety.
 - Android: `gradle :shared:jvmTest :androidApp:assembleDebug`.
 - iOS: `gradle :shared:iosSimulatorArm64Test :shared:linkDebugFrameworkIosSimulatorArm64`.
-- GitHub workflows contain the installed Android emulator and iOS Keychain probe gates.
+- The single GitHub workflow runs installed Android and iOS J1 journeys plus
+  Android Keystore and iOS Keychain runtime gates. iOS test results and the exact
+  tested simulator application are preserved separately.
 
 All build source is in this repository. Builds do not fetch private repositories,
 user documents, analysis inputs, or external private storage. Standard public
