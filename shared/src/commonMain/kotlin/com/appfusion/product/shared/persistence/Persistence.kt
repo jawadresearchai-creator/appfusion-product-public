@@ -66,18 +66,9 @@ data class ActivityRecordEntity(
     val completedCount: Long,
 )
 
-@Dao
-interface ActivityRecordDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun put(record: ActivityRecordEntity)
-
-    @Query("SELECT * FROM activity_records WHERE id = :id LIMIT 1")
-    suspend fun find(id: String): ActivityRecordEntity?
-}
-
 @Database(
-    entities = [ActivityRecordEntity::class],
-    version = 1,
+    entities = [ActivityRecordEntity::class, ActivityCadenceEntity::class, ActivityCompletionEntity::class],
+    version = 2,
     exportSchema = true,
 )
 @ConstructedBy(ActivityDomainDatabaseConstructor::class)
@@ -131,6 +122,8 @@ fun buildDocumentDatabase(
 
 fun buildActivityDatabase(
     builder: RoomDatabase.Builder<ActivityDomainDatabase>,
+    migrations: List<Migration> = listOf(ActivityMigration1To2),
 ): ActivityDomainDatabase = builder
     .setDriver(BundledSQLiteDriver())
+    .addMigrations(*migrations.toTypedArray())
     .build()

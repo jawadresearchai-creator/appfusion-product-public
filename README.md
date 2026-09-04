@@ -3,7 +3,10 @@
 Public, clean-room source for a modular, offline-first productivity application.
 The current development milestone implements encrypted document creation, search,
 restart recovery and reopening on Android and iOS, with installed journey gates
-in CI. Activity/reminder and cross-module journeys remain unfinished.
+in CI. Shared activity history, calendar cadence and reminder-reconciliation rules
+are implemented with JVM/iOS contract tests; see [the J2 contract](shared/J2_CONTRACT.md).
+Native notification delivery, installed activity/reminder UI and cross-module
+journeys remain unfinished.
 
 This is a development prototype, not a production security or final release.
 Use disposable test data. Debug signing keys can differ between builds.
