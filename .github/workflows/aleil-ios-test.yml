@@ -7,19 +7,15 @@ on:
         description: "Ephemeral ALEIL payload branch"
         required: true
         type: string
-      runner:
-        description: "macOS runner label"
-        required: false
-        default: "macos-15"
-        type: string
 
 permissions:
   contents: read
 
 jobs:
   ios-test:
-    runs-on: ${{ inputs.runner }}
-    timeout-minutes: 60
+    if: ${{ github.event.repository.private == false && github.repository == 'jawadresearchai-creator/appfusion-product-public' }}
+    runs-on: macos-15
+    timeout-minutes: 25
 
     steps:
       - name: Validate payload ref
@@ -31,12 +27,15 @@ jobs:
             *) echo "Invalid payload_ref"; exit 64 ;;
           esac
 
-      - name: Checkout payload
-        uses: actions/checkout@v4
+      - name: Checkout public payload
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ inputs.payload_ref }}
           fetch-depth: 1
           persist-credentials: false
+
+      - name: Verify Product clean-room boundary
+        run: python scripts/verify_product.py
 
       - name: Environment evidence
         shell: bash
@@ -60,7 +59,7 @@ jobs:
 
       - name: Upload evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: aleil-ios-results
           path: engineering/ios-test-results/**
