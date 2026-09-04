@@ -1,0 +1,68 @@
+name: ALEIL iOS Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      payload_ref:
+        description: "Ephemeral ALEIL payload branch"
+        required: true
+        type: string
+      runner:
+        description: "macOS runner label"
+        required: false
+        default: "macos-15"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  ios-test:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 60
+
+    steps:
+      - name: Validate payload ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ inputs.payload_ref }}" in
+            aleil-ios-test/*) ;;
+            *) echo "Invalid payload_ref"; exit 64 ;;
+          esac
+
+      - name: Checkout payload
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.payload_ref }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Environment evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p engineering/ios-test-results
+          {
+            echo "date=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            sw_vers
+            uname -a
+            xcodebuild -version
+            xcrun simctl list devices available || true
+          } | tee engineering/ios-test-results/environment.txt
+
+      - name: Run project-specific iOS tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x engineering/ios-test/run-ios-tests.sh
+          ./engineering/ios-test/run-ios-tests.sh 2>&1 | tee engineering/ios-test-results/test.log
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aleil-ios-results
+          path: engineering/ios-test-results/**
+          if-no-files-found: warn
+          retention-days: 3
