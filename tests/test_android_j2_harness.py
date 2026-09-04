@@ -22,25 +22,28 @@ class AndroidJ2HarnessTests(unittest.TestCase):
                 self.assertEqual(journey.center("id", "history"), expected)
                 self.assertEqual(journey.center("id", "history", require_enabled=False), expected)
 
-    def test_receipt_never_claims_notification_or_full_journey_acceptance(self):
+    def test_receipt_starts_fail_closed_and_never_claims_full_j2(self):
         result = receipt("commit", "digest", "emulator")
         self.assertEqual(result["status"], "FAIL")
+        self.assertEqual(result["android_j2_criterion"], "IN_PROGRESS")
         self.assertFalse(result["native_notification_delivery_accepted"])
         self.assertFalse(result["j2_fully_accepted"])
         self.assertIn("timezone-change", result["operations"])
         self.assertIn("force-stop", result["operations"])
 
-    def test_existing_guarded_workflow_runs_both_installed_android_slices(self):
+    def test_existing_guarded_workflow_runs_j1_and_j2_android_journeys(self):
         workflow = (ROOT / ".github/workflows/product-construction-ci.yml").read_text()
         self.assertIn("run: python3 scripts/android_j1_ui_smoke.py", workflow)
         self.assertIn("run: python3 scripts/android_j2_activity_ui_smoke.py", workflow)
         self.assertIn("scripts/android_j2_activity_ui_smoke.py)", workflow)
 
-    def test_activity_is_internal_and_explicit_about_unconnected_delivery(self):
+    def test_activity_is_internal_and_connected_only_to_the_single_native_transport(self):
         manifest = (ROOT / "androidApp/src/main/AndroidManifest.xml").read_text()
         self.assertIn('android:name=".ActivityHistoryActivity" android:exported="false"', manifest)
         ui = (ROOT / "androidApp/src/main/java/com/appfusion/product/ActivityHistoryActivity.kt").read_text()
-        self.assertIn("Device notifications are not connected yet", ui)
+        runtime = (ROOT / "androidApp/src/main/java/com/appfusion/product/AndroidActivityRuntime.kt").read_text()
+        self.assertIn("One shared cadence plan drives the local notification transport.", ui)
+        self.assertIn("ActivityReminderCoordinator(repository, transport)", runtime)
         self.assertIn("catch (cancelled: CancellationException) { throw cancelled }", ui)
 
 
