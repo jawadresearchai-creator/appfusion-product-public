@@ -15,6 +15,14 @@ TITLE = "J2Activity42"
 
 
 class ActivityJourney(AndroidJourney):
+    def center(self, mode: str, needle: str, *, require_enabled: bool = True) -> tuple[int, int] | None:
+        center = super().center(mode, needle, require_enabled=require_enabled)
+        # UIAutomator can report a one-pixel sliver behind system navigation as
+        # visible. Never tap there: scroll the target into the usable viewport.
+        if center is not None and not (32 <= center[1] <= self.height - 64):
+            return None
+        return center
+
     def capture(self) -> None:
         super().capture()
         (self.evidence / "j1-opened-document.png").replace(self.evidence / "j2-activity-history.png")
