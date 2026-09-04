@@ -25,6 +25,7 @@ final class JourneyJ1UITests: XCTestCase {
         XCTAssertTrue(bodyView.waitForExistence(timeout: 5))
         bodyView.tap()
         bodyView.typeText(body)
+        dismissKeyboard(in: app)
 
         tapWhenHittable(save, in: app)
         let status = app.staticTexts["journey-status"]
@@ -40,6 +41,7 @@ final class JourneyJ1UITests: XCTestCase {
         XCTAssertTrue(query.waitForExistence(timeout: 5))
         tapWhenHittable(query, in: app)
         query.typeText(title)
+        dismissKeyboard(in: app)
         tapWhenHittable(search, in: app)
 
         let result = app.buttons["search-result-item"]
@@ -49,6 +51,10 @@ final class JourneyJ1UITests: XCTestCase {
         let opened = app.staticTexts["opened-document-body"]
         XCTAssertTrue(opened.waitForExistence(timeout: 15))
         XCTAssertTrue(opened.label.contains(body))
+        for _ in 0..<6 where !opened.isHittable {
+            app.scrollViews["workspace-scroll"].swipeUp()
+        }
+        XCTAssertTrue(opened.isHittable, "Reopened plaintext must be visible in the UI")
 
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         attachment.name = "J1 encrypted document reopened after relaunch"
@@ -78,9 +84,21 @@ final class JourneyJ1UITests: XCTestCase {
         attempts: Int = 6
     ) {
         for _ in 0..<attempts where !element.isHittable {
-            app.swipeUp()
+            app.scrollViews["workspace-scroll"].swipeUp()
         }
         XCTAssertTrue(element.isHittable, "Expected \(element) to become hittable")
         element.tap()
+    }
+
+    private func dismissKeyboard(in app: XCUIApplication) {
+        guard app.keyboards.firstMatch.exists else { return }
+        let done = app.buttons["dismiss-keyboard"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        done.tap()
+        let hidden = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: app.keyboards.firstMatch
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [hidden], timeout: 5), .completed)
     }
 }

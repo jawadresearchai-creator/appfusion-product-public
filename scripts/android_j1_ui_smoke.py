@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import time
 import xml.etree.ElementTree as ET
@@ -26,6 +27,7 @@ class AndroidJourney:
         self.evidence = evidence.resolve()
         self.evidence.mkdir(parents=True, exist_ok=True)
         self.xml_path = self.evidence / "window.xml"
+        self.infrastructure_recoveries: list[str] = []
         if self.command("shell", "getprop", "ro.kernel.qemu").strip() != "1":
             raise RuntimeError("J1 resets test app data and may run only on an Android emulator")
         size = self.command("shell", "wm", "size")
@@ -71,6 +73,8 @@ class AndroidJourney:
         deadline = time.monotonic() + 90
         while time.monotonic() < deadline:
             self.dump_ui()
+            if self.dismiss_known_launcher_anr():
+                continue
             if center := self.center(mode, needle):
                 return center
             if scroll and self.center(mode, needle, require_enabled=False) is None:
@@ -79,6 +83,27 @@ class AndroidJourney:
                              x, str(int(self.height * .28)), "300")
             time.sleep(1)
         raise RuntimeError(f"Timed out waiting for UI {mode} {needle!r}")
+
+    def dismiss_known_launcher_anr(self) -> bool:
+        # Only this observed emulator-launcher failure is recoverable, once.
+        # Never dismiss an AppFusion crash/ANR or any other unknown dialog.
+        nodes = list(ET.parse(self.xml_path).getroot().iter("node"))
+        launcher_anr = any(
+            node.get("resource-id") == "android:id/alertTitle"
+            and node.get("package") == "android"
+            and node.get("text") == "Pixel Launcher isn't responding"
+            for node in nodes
+        )
+        if not launcher_anr or self.infrastructure_recoveries:
+            return False
+        close = self.center("id", "android:id/aerr_close")
+        if close is None:
+            return False
+        shutil.copyfile(self.xml_path, self.evidence / "launcher-anr.xml")
+        self.infrastructure_recoveries.append("PIXEL_LAUNCHER_ANR_DISMISSED_ONCE")
+        self.command("shell", "input", "tap", str(close[0]), str(close[1]))
+        time.sleep(1)
+        return True
 
     def tap(self, resource: str, *, scroll: bool = False) -> None:
         x, y = self.find("id", f"{PACKAGE}:id/{resource}", scroll=scroll)
@@ -154,6 +179,7 @@ def main() -> None:
             result["capture_error"] = str(capture_error)
         raise
     finally:
+        result["infrastructure_recoveries"] = journey.infrastructure_recoveries
         (journey.evidence / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 
 

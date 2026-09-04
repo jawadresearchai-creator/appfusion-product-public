@@ -64,7 +64,7 @@ jobs:
                   android_jvm=true; android_device=true ;;
                 scripts/android_j1_ui_smoke.py)
                   android_device=true ;;
-                iosApp/*|iosProbe/*)
+                iosApp/*|iosProbe/*|scripts/ios_j1_ui_ci.sh)
                   ios=true ;;
               esac
             done < "$RUNNER_TEMP/changed-files.txt"
@@ -390,28 +390,19 @@ jobs:
         shell: bash
         run: |
           find shared/build/test-results -type f -name '*.xml' -print -exec cat {} \; || true
-      - name: Build the iOS simulator application shell
+      - name: Run installed iOS Journey J1 and package the tested application
+        env:
+          APPFUSION_IOS_J1_EVIDENCE_DIR: ${{ runner.temp }}/appfusion-ios-j1-evidence
         shell: bash
-        run: |
-          set -euo pipefail
-          APP_BUILD_DIR="$RUNNER_TEMP/appfusion-ios-app-build"
-          xcodebuild \
-            -project iosApp/AppFusion.xcodeproj \
-            -target AppFusion \
-            -configuration Debug \
-            -sdk iphonesimulator \
-            -arch arm64 \
-            CONFIGURATION_BUILD_DIR="$APP_BUILD_DIR" \
-            CODE_SIGN_IDENTITY=- \
-            CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGNING_REQUIRED=YES \
-            ONLY_ACTIVE_ARCH=YES \
-            clean build
-          test -d "$APP_BUILD_DIR/AppFusion.app"
-          codesign --verify --deep --strict "$APP_BUILD_DIR/AppFusion.app"
-          ditto -c -k --sequesterRsrc --keepParent \
-            "$APP_BUILD_DIR/AppFusion.app" \
-            "$RUNNER_TEMP/AppFusion-ios-simulator.zip"
+        run: bash scripts/ios_j1_ui_ci.sh
+      - name: Preserve iOS Journey J1 evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: AppFusion-iOS-J1-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 3
+          path: ${{ runner.temp }}/appfusion-ios-j1-evidence
       - name: Upload iOS simulator application
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

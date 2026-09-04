@@ -64,6 +64,7 @@ final class AppFusionViewController: UIViewController {
         documentBodyView.heightAnchor.constraint(equalToConstant: 118).isActive = true
         documentBodyView.accessibilityIdentifier = "document-body"
         documentBodyView.accessibilityLabel = "Private note"
+        documentBodyView.inputAccessoryView = keyboardToolbar()
 
         configureActionButton(saveButton, title: "Encrypt & save", identifier: "save-document")
         saveButton.addTarget(self, action: #selector(saveDocument), for: .touchUpInside)
@@ -119,7 +120,8 @@ final class AppFusionViewController: UIViewController {
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         let scroll = UIScrollView()
-        scroll.keyboardDismissMode = .interactive
+        scroll.keyboardDismissMode = .onDrag
+        scroll.accessibilityIdentifier = "workspace-scroll"
         scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.addSubview(stack)
         view.addSubview(scroll)
@@ -128,7 +130,7 @@ final class AppFusionViewController: UIViewController {
             scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scroll.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
             stack.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor, constant: 28),
             stack.leadingAnchor.constraint(equalTo: scroll.frameLayoutGuide.leadingAnchor, constant: 22),
             stack.trailingAnchor.constraint(equalTo: scroll.frameLayoutGuide.trailingAnchor, constant: -22),
@@ -296,6 +298,20 @@ final class AppFusionViewController: UIViewController {
         field.setLeftPadding(12)
         field.heightAnchor.constraint(equalToConstant: 50).isActive = true
         field.accessibilityIdentifier = identifier
+        field.inputAccessoryView = keyboardToolbar()
+    }
+
+    private func keyboardToolbar() -> UIToolbar {
+        let toolbar = UIToolbar()
+        let done = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))
+        done.accessibilityIdentifier = "dismiss-keyboard"
+        toolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), done]
+        toolbar.sizeToFit()
+        return toolbar
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 
     private func section(_ text: String) -> UILabel {
