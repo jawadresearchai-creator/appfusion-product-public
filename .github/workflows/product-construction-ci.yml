@@ -259,6 +259,13 @@ jobs:
           if-no-files-found: error
           retention-days: 3
           path: ${{ runner.temp }}/appfusion-j1-evidence
+      - name: Preserve the exact Android APK that passed installed J1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: AppFusion-Android-Tested-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 3
+          path: androidApp/build/outputs/apk/debug/androidApp-debug.apk
       - name: Emit Android failure evidence
         if: failure()
         shell: bash
