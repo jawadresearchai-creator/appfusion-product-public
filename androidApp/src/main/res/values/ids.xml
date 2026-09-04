@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="open_activities" type="id" />
+    <item name="activity_notification_status" type="id" />
+    <item name="activity_enable_notifications" type="id" />
+    <item name="activity_test_notification" type="id" />
     <item name="activity_title" type="id" />
     <item name="activity_days" type="id" />
     <item name="activity_time" type="id" />
