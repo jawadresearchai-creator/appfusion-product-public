@@ -1,0 +1,136 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B10000000000000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* AppDelegate.swift */; };
+		B10000000000000000000003 /* AppFusionShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* AppFusionShared.framework */; };
+		B10000000000000000000005 /* AppFusionShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* AppFusionShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B10000000000000000000006 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (B10000000000000000000005 /* AppFusionShared.framework in Embed Frameworks */, );
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B10000000000000000000002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B10000000000000000000004 /* AppFusionShared.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppFusionShared.framework; path = ../shared/build/bin/iosSimulatorArm64/debugFramework/AppFusionShared.framework; sourceTree = SOURCE_ROOT; };
+		B10000000000000000000007 /* AppFusion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppFusion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000000000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B10000000000000000000009 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000003 /* AppFusionShared.framework in Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B1000000000000000000000A = {
+			isa = PBXGroup;
+			children = (B1000000000000000000000B /* AppFusion */, B1000000000000000000000C /* Frameworks */, B1000000000000000000000D /* Products */, );
+			sourceTree = "<group>";
+		};
+		B1000000000000000000000B /* AppFusion */ = {isa = PBXGroup; children = (B10000000000000000000002 /* AppDelegate.swift */, B10000000000000000000008 /* Info.plist */, ); path = AppFusion; sourceTree = "<group>"; };
+		B1000000000000000000000C /* Frameworks */ = {isa = PBXGroup; children = (B10000000000000000000004 /* AppFusionShared.framework */, ); name = Frameworks; sourceTree = "<group>"; };
+		B1000000000000000000000D /* Products */ = {isa = PBXGroup; children = (B10000000000000000000007 /* AppFusion.app */, ); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B1000000000000000000000E /* AppFusion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B1000000000000000000000F /* Build configuration list for PBXNativeTarget "AppFusion" */;
+			buildPhases = (B10000000000000000000010 /* Sources */, B10000000000000000000009 /* Frameworks */, B10000000000000000000011 /* Resources */, B10000000000000000000006 /* Embed Frameworks */, );
+			buildRules = ();
+			dependencies = ();
+			name = AppFusion;
+			productName = AppFusion;
+			productReference = B10000000000000000000007 /* AppFusion.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B10000000000000000000012 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 1640; LastUpgradeCheck = 1640; TargetAttributes = {B1000000000000000000000E = {CreatedOnToolsVersion = 16.4; }; }; };
+			buildConfigurationList = B10000000000000000000013 /* Build configuration list for PBXProject "AppFusion" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base, );
+			mainGroup = B1000000000000000000000A;
+			productRefGroup = B1000000000000000000000D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (B1000000000000000000000E /* AppFusion */, );
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B10000000000000000000011 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B10000000000000000000010 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000001 /* AppDelegate.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B10000000000000000000014 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; ENABLE_TESTABILITY = YES; GCC_C_LANGUAGE_STANDARD = gnu17; GCC_OPTIMIZATION_LEVEL = 0; ONLY_ACTIVE_ARCH = YES; SDKROOT = iphoneos; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; }; name = Debug; };
+		B10000000000000000000015 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; COPY_PHASE_STRIP = YES; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; GCC_C_LANGUAGE_STANDARD = gnu17; SDKROOT = iphoneos; SWIFT_COMPILATION_MODE = wholemodule; }; name = Release; };
+		B10000000000000000000016 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = ("$(inherited)", "$(PROJECT_DIR)/../shared/build/bin/iosSimulatorArm64/debugFramework", );
+				INFOPLIST_FILE = AppFusion/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", );
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.appfusion.product;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B10000000000000000000017 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = ("$(inherited)", "$(PROJECT_DIR)/../shared/build/bin/iosSimulatorArm64/debugFramework", );
+				INFOPLIST_FILE = AppFusion/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", );
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.appfusion.product;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B1000000000000000000000F /* Build configuration list for PBXNativeTarget "AppFusion" */ = {isa = XCConfigurationList; buildConfigurations = (B10000000000000000000016 /* Debug */, B10000000000000000000017 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		B10000000000000000000013 /* Build configuration list for PBXProject "AppFusion" */ = {isa = XCConfigurationList; buildConfigurations = (B10000000000000000000014 /* Debug */, B10000000000000000000015 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = B10000000000000000000012 /* Project object */;
+}

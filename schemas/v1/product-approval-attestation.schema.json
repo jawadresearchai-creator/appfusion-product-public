@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://appfusion.local/product/schemas/v1/product-approval-attestation.schema.json",
+  "title": "ProductApprovalAttestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "approval_id", "product_blueprint_sha256", "approval_status", "approved_at", "policy_bundle_hash", "clean_room_schema_version"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "approval_id": {"type": "string", "format": "uuid"},
+    "product_blueprint_sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+    "approval_status": {"const": "APPROVED"},
+    "approved_at": {"type": "string", "format": "date-time"},
+    "policy_bundle_hash": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+    "clean_room_schema_version": {"type": "string"},
+    "conditions": {"type": "array", "items": {"type": "string"}}
+  }
+}

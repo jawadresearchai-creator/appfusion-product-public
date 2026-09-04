@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "allowed_artifacts": ["ProductBlueprint", "ProductApprovalAttestation", "DeclaredPermittedFixture"],
+  "forbidden_keys": [
+    "foundry_decision_dossier",
+    "source_app",
+    "source_apps",
+    "source_package",
+    "package_name_as_behavioral_reference",
+    "reverse_mapping",
+    "decompiled_source",
+    "jadx_output",
+    "apktool_output",
+    "smali",
+    "foundry_evidence_location"
+  ],
+  "foundry_repository_access": false,
+  "local_environment_required": false
+}

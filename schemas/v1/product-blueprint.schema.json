@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://appfusion.local/product/schemas/v1/product-blueprint.schema.json",
+  "title": "ProductBlueprint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "blueprint_id", "product_thesis", "target_platforms", "modules", "acceptance"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "blueprint_id": {"type": "string", "format": "uuid"},
+    "product_thesis": {"type": "string", "minLength": 1},
+    "target_platforms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["android", "ios"],
+      "properties": {"android": {"type": "boolean"}, "ios": {"type": "boolean"}}
+    },
+    "release_scope": {"enum": ["EXPERIMENTAL_ANDROID_ONLY_PILOT", "CROSS_PLATFORM_PRODUCT"]},
+    "modules": {"type": "array", "items": {"type": "object"}},
+    "shared_core_contracts": {"type": "array", "items": {"type": "object"}},
+    "behavioral_targets": {"type": "array", "items": {"type": "object"}},
+    "product_engine_candidates": {"type": "array", "items": {"type": "object"}},
+    "acceptance": {"type": "object"},
+    "uncertainties": {"type": "array", "items": {"type": "string"}}
+  }
+}

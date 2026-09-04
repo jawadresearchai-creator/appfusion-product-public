@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "approval_id": "0c38063f-5a96-4a1a-9b17-fa7d29c9eae1",
+  "product_blueprint_sha256": "2120f5989ec35562377bd42e032018bd0004916d5ea4c56005f8e7048414b6fc",
+  "approval_status": "APPROVED",
+  "approved_at": "2026-09-02T18:50:00Z",
+  "policy_bundle_hash": "72292288e2f99b43cadf98e2a347f196273fbec0a3e9fb986839078763d04756",
+  "clean_room_schema_version": "1.0.0",
+  "conditions": [
+    "Approval applies only to the exact ProductBlueprint bytes identified by product_blueprint_sha256.",
+    "Any semantic ProductBlueprint change requires a new hash and authenticated approval.",
+    "Clean-room Product construction must not import Foundry/source-specific artifacts.",
+    "Blueprint uncertainties and release/security acceptance gates remain binding."
+  ]
+}

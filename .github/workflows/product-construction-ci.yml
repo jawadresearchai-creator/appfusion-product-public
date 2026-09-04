@@ -1,0 +1,414 @@
+name: Product Construction CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: product-construction-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    if: ${{ github.event.repository.private == false && github.repository == 'jawadresearchai-creator/appfusion-product-public' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      android_jvm: ${{ steps.changes.outputs.android_jvm }}
+      android_device: ${{ steps.changes.outputs.android_device }}
+      ios: ${{ steps.changes.outputs.ios }}
+    steps:
+      - name: Check out change history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify public-source and clean-room boundaries
+        run: python scripts/verify_product.py
+      - name: Classify the minimum required platform gates
+        id: changes
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          android_jvm=false
+          android_device=false
+          ios=false
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            android_jvm=true
+            android_device=true
+            ios=true
+          else
+            base="$EVENT_BEFORE"
+            if [ "$EVENT_NAME" = 'pull_request' ]; then base="$PR_BASE_SHA"; fi
+            if [ -z "$base" ] || [[ "$base" =~ ^0+$ ]]; then
+              git ls-tree -r --name-only "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files.txt"
+            else
+              git diff --name-only "$base" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files.txt"
+            fi
+            while IFS= read -r path; do
+              case "$path" in
+                .github/workflows/product-construction-ci.yml|build.gradle.kts|settings.gradle.kts|gradle.properties|gradle/*)
+                  android_jvm=true; android_device=true; ios=true ;;
+                shared/*)
+                  android_jvm=true; android_device=true; ios=true ;;
+                androidApp/*)
+                  android_jvm=true; android_device=true ;;
+                scripts/android_j1_ui_smoke.py)
+                  android_device=true ;;
+                iosApp/*|iosProbe/*)
+                  ios=true ;;
+              esac
+            done < "$RUNNER_TEMP/changed-files.txt"
+          fi
+          echo "android_jvm=$android_jvm" >> "$GITHUB_OUTPUT"
+          echo "android_device=$android_device" >> "$GITHUB_OUTPUT"
+          echo "ios=$ios" >> "$GITHUB_OUTPUT"
+
+  android-jvm-contracts:
+    needs: preflight
+    if: github.event.repository.private == false && github.repository == 'jawadresearchai-creator/appfusion-product-public' && needs.preflight.outputs.android_jvm == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out clean-room Product repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle 9.5.0
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
+        with:
+          gradle-version: '9.5.0'
+          cache-disabled: true
+      - name: Ensure Android SDK 36 is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(command -v sdkmanager)"
+          fi
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0" >/dev/null
+      - name: Compile shared contracts and Android installable artifacts
+        run: >-
+          gradle --no-daemon --stacktrace
+          :shared:build
+          :shared:jvmTest
+          :androidApp:assembleDebug
+          :androidApp:assembleRelease
+          :androidApp:bundleRelease
+      - name: Upload Android application artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: AppFusion-Android-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 3
+          path: |
+            androidApp/build/outputs/apk/debug/*.apk
+            androidApp/build/outputs/apk/release/*.apk
+            androidApp/build/outputs/bundle/release/*.aab
+
+  android-keystore-device:
+    needs: preflight
+    if: github.event.repository.private == false && github.repository == 'jawadresearchai-creator/appfusion-product-public' && needs.preflight.outputs.android_device == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out clean-room Product repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle 9.5.0
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
+        with:
+          gradle-version: '9.5.0'
+          cache-disabled: true
+      - name: Build Android device-test and application APKs before starting the emulator
+        run: >-
+          gradle --no-daemon --stacktrace
+          :shared:packageAndroidDeviceTest
+          :androidApp:assembleDebug
+      - name: Provision Android emulator from Google SDK packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_USER_HOME="$RUNNER_TEMP/android-user"
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/android-avd"
+          mkdir -p "$ANDROID_USER_HOME" "$ANDROID_AVD_HOME"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          AVDMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          if [ ! -x "$AVDMANAGER" ]; then AVDMANAGER="$(command -v avdmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" \
+            "platform-tools" \
+            "emulator" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "system-images;android-35;google_apis;x86_64" >/dev/null
+          ADB="$ANDROID_HOME/platform-tools/adb"
+          test -x "$ADB"
+          echo no | "$AVDMANAGER" create avd \
+            --force \
+            --name appfusion-secureblob-api35 \
+            --package "system-images;android-35;google_apis;x86_64" \
+            --device pixel_6 >/dev/null
+          "$ANDROID_HOME/emulator/emulator" -list-avds | tee "$RUNNER_TEMP/appfusion-avds.txt"
+          grep -qx 'appfusion-secureblob-api35' "$RUNNER_TEMP/appfusion-avds.txt"
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
+          nohup "$ANDROID_HOME/emulator/emulator" \
+            -avd appfusion-secureblob-api35 \
+            -no-window \
+            -no-audio \
+            -no-boot-anim \
+            -no-snapshot \
+            -cores 2 \
+            -memory 1536 \
+            -skin 480x800 \
+            -gpu swiftshader_indirect \
+            >"$RUNNER_TEMP/appfusion-emulator.log" 2>&1 &
+          EMULATOR_PID=$!
+          device_ready=0
+          for _ in $(seq 1 90); do
+            if "$ADB" get-state 2>/dev/null | grep -qx device; then
+              device_ready=1
+              break
+            fi
+            if ! kill -0 "$EMULATOR_PID" 2>/dev/null; then
+              echo 'Android emulator process exited before ADB became ready.' >&2
+              cat "$RUNNER_TEMP/appfusion-emulator.log" >&2 || true
+              exit 1
+            fi
+            sleep 2
+          done
+          if [ "$device_ready" != "1" ]; then
+            echo 'Android emulator did not become ADB-ready within 180 seconds.' >&2
+            cat "$RUNNER_TEMP/appfusion-emulator.log" >&2 || true
+            exit 1
+          fi
+          booted=0
+          for _ in $(seq 1 120); do
+            if [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; then
+              booted=1
+              break
+            fi
+            if ! kill -0 "$EMULATOR_PID" 2>/dev/null; then
+              echo 'Android emulator process exited before boot completed.' >&2
+              cat "$RUNNER_TEMP/appfusion-emulator.log" >&2 || true
+              exit 1
+            fi
+            sleep 2
+          done
+          if [ "$booted" != "1" ]; then
+            echo 'Android emulator did not complete boot within 240 seconds.' >&2
+            cat "$RUNNER_TEMP/appfusion-emulator.log" >&2 || true
+            exit 1
+          fi
+          "$ADB" shell input keyevent 82 || true
+          "$ADB" shell settings put global window_animation_scale 0
+          "$ADB" shell settings put global transition_animation_scale 0
+          "$ADB" shell settings put global animator_duration_scale 0
+          "$ADB" shell wm density 160
+          responsive=0
+          for _ in $(seq 1 30); do
+            if "$ADB" shell getprop ro.build.version.sdk 2>/dev/null | grep -Eq '^[0-9]+$' && \
+               "$ADB" shell cmd package list packages >/dev/null 2>&1; then
+              responsive=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$responsive" != "1" ]; then
+            echo 'Android emulator was booted but not stably responsive to ADB.' >&2
+            exit 1
+          fi
+      - name: Run Android Keystore device probe
+        env:
+          ANDROID_USER_HOME: ${{ runner.temp }}/android-user
+          ANDROID_AVD_HOME: ${{ runner.temp }}/android-avd
+        run: gradle --no-daemon --stacktrace :shared:connectedAndroidTest
+      - name: Run installed Android Journey J1
+        env:
+          ANDROID_USER_HOME: ${{ runner.temp }}/android-user
+          ANDROID_AVD_HOME: ${{ runner.temp }}/android-avd
+          APPFUSION_J1_EVIDENCE_DIR: ${{ runner.temp }}/appfusion-j1-evidence
+        run: python3 scripts/android_j1_ui_smoke.py
+      - name: Upload Android Journey J1 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: AppFusion-Android-J1-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 3
+          path: ${{ runner.temp }}/appfusion-j1-evidence
+      - name: Emit Android failure evidence
+        if: failure()
+        shell: bash
+        run: |
+          cat "$RUNNER_TEMP/appfusion-emulator.log" || true
+          find shared/build -type f -name 'TEST-*.xml' -print -exec cat {} \; || true
+          cat "$RUNNER_TEMP/appfusion-j1-evidence/logcat.txt" || true
+      - name: Stop emulator
+        if: always()
+        shell: bash
+        run: |
+          "$ANDROID_HOME/platform-tools/adb" emu kill || true
+
+  ios-contracts:
+    needs: preflight
+    if: github.event.repository.private == false && github.repository == 'jawadresearchai-creator/appfusion-product-public' && needs.preflight.outputs.ios == 'true'
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - name: Check out clean-room Product repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle 9.5.0
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
+        with:
+          gradle-version: '9.5.0'
+          cache-disabled: true
+      - name: Run shared contracts and link iOS Simulator framework
+        run: >-
+          gradle --no-daemon --stacktrace
+          :shared:iosSimulatorArm64Test
+          :shared:linkDebugFrameworkIosSimulatorArm64
+      - name: Run Apple Keychain adapter from simulator-installed host app
+        shell: bash
+        run: |
+          set -euo pipefail
+          FRAMEWORK_DIR="$PWD/shared/build/bin/iosSimulatorArm64/debugFramework"
+          FRAMEWORK="$FRAMEWORK_DIR/AppFusionShared.framework"
+          test -d "$FRAMEWORK"
+          grep -n 'AppleKeychainHostProbe' "$FRAMEWORK/Headers/AppFusionShared.h"
+
+          XCODE_BUILD_DIR="$RUNNER_TEMP/secureblob-probe-build"
+          xcodebuild \
+            -project iosProbe/SecureBlobProbe.xcodeproj \
+            -target SecureBlobProbe \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -arch arm64 \
+            CONFIGURATION_BUILD_DIR="$XCODE_BUILD_DIR" \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=YES \
+            ONLY_ACTIVE_ARCH=YES \
+            clean build
+          APP="$XCODE_BUILD_DIR/SecureBlobProbe.app"
+          test -d "$APP"
+          codesign --verify --deep --strict "$APP"
+          codesign --display --entitlements :- "$APP"
+
+          RUNTIME="$(python3 - <<'PY'
+          import json, subprocess
+          payload = json.loads(subprocess.check_output(['xcrun','simctl','list','runtimes','-j']))
+          candidates = [r for r in payload['runtimes'] if r.get('isAvailable') and r['identifier'].startswith('com.apple.CoreSimulator.SimRuntime.iOS-')]
+          if not candidates:
+              raise SystemExit('No available iOS simulator runtime')
+          def ver(r):
+              return tuple(int(p) for p in r.get('version','0').split('.'))
+          print(max(candidates, key=ver)['identifier'])
+          PY
+          )"
+          DEVICE_TYPES="$(python3 - <<'PY'
+          import json, subprocess
+          payload = json.loads(subprocess.check_output(['xcrun','simctl','list','devicetypes','-j']))
+          ids = [d['identifier'] for d in payload['devicetypes'] if d.get('name','').startswith('iPhone')]
+          for identifier in reversed(ids):
+              print(identifier)
+          PY
+          )"
+          UDID=''
+          while IFS= read -r DEVICE_TYPE; do
+            if [ -n "$DEVICE_TYPE" ] && CANDIDATE="$(xcrun simctl create AppFusionSecureBlobProbe "$DEVICE_TYPE" "$RUNTIME" 2>/dev/null)"; then
+              UDID="$CANDIDATE"
+              break
+            fi
+          done <<< "$DEVICE_TYPES"
+          test -n "$UDID"
+          cleanup_simulator() {
+            xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
+            xcrun simctl delete "$UDID" >/dev/null 2>&1 || true
+          }
+          trap cleanup_simulator EXIT
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP"
+          DATA_CONTAINER="$(xcrun simctl get_app_container "$UDID" com.appfusion.secureblob.probe data)"
+          RESULT_FILE="$DATA_CONTAINER/Documents/secureblob-probe-result.txt"
+          xcrun simctl launch "$UDID" com.appfusion.secureblob.probe
+          probe_ok=0
+          for _ in $(seq 1 90); do
+            if [ -f "$RESULT_FILE" ] && grep -Fqx 'APPFUSION_KEYCHAIN_PROBE=OK' "$RESULT_FILE"; then
+              probe_ok=1
+              break
+            fi
+            sleep 1
+          done
+          if [ -f "$RESULT_FILE" ]; then cat "$RESULT_FILE"; fi
+          if [ "$probe_ok" != "1" ]; then
+            xcrun simctl spawn "$UDID" log show \
+              --last 5m \
+              --style compact \
+              --predicate 'process == "SecureBlobProbe" OR process == "securityd"' || true
+            exit 1
+          fi
+      - name: Emit iOS test failure evidence
+        if: failure()
+        shell: bash
+        run: |
+          find shared/build/test-results -type f -name '*.xml' -print -exec cat {} \; || true
+      - name: Build the iOS simulator application shell
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_BUILD_DIR="$RUNNER_TEMP/appfusion-ios-app-build"
+          xcodebuild \
+            -project iosApp/AppFusion.xcodeproj \
+            -target AppFusion \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -arch arm64 \
+            CONFIGURATION_BUILD_DIR="$APP_BUILD_DIR" \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=YES \
+            ONLY_ACTIVE_ARCH=YES \
+            clean build
+          test -d "$APP_BUILD_DIR/AppFusion.app"
+          codesign --verify --deep --strict "$APP_BUILD_DIR/AppFusion.app"
+          ditto -c -k --sequesterRsrc --keepParent \
+            "$APP_BUILD_DIR/AppFusion.app" \
+            "$RUNNER_TEMP/AppFusion-ios-simulator.zip"
+      - name: Upload iOS simulator application
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: AppFusion-iOS-Simulator-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 3
+          path: ${{ runner.temp }}/AppFusion-ios-simulator.zip

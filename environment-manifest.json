@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "canonical_state": {
+    "authority": "CLOUD",
+    "repository": "jawadresearchai-creator/appfusion-product-public"
+  },
+  "foundry_repository_access": false,
+  "local_environment": {"role": "OPTIONAL_ADAPTER", "required_for_build_or_release": false},
+  "execution_cost_policy": {
+    "spend_policy": "FREE_ONLY",
+    "maximum_new_service_charge": 0,
+    "billing_activation_allowed": false,
+    "paid_overage_authorized": false,
+    "monthly_free_tier_is_permanent_solution": false,
+    "execution_route": "GITHUB_PUBLIC_STANDARD",
+    "publication_status": "USER_AUTHORIZED_PUBLIC_SOURCE",
+    "standard_runner_allowlist": ["ubuntu-24.04", "macos-15"]
+  },
+  "approved_product_blueprint": {
+    "sha256": "2120f5989ec35562377bd42e032018bd0004916d5ea4c56005f8e7048414b6fc",
+    "path": "blueprints/approved/PRODUCT_BLUEPRINT__personal-vault-cadence-workspace_v1.json",
+    "approval_attestation_path": "blueprints/approved/PRODUCT_APPROVAL_ATTESTATION__personal-vault-cadence-workspace_v1.json"
+  }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="document_title" type="id" />
+    <item name="document_body" type="id" />
+    <item name="save_document" type="id" />
+    <item name="search_query" type="id" />
+    <item name="search_documents" type="id" />
+    <item name="status_text" type="id" />
+    <item name="search_results" type="id" />
+    <item name="search_result_item" type="id" />
+</resources>

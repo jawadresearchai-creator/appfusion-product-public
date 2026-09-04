@@ -1,0 +1,211 @@
+{
+  "acceptance": {
+    "architecture": [
+      "No source/reference identity in Product-facing code or tests",
+      "No duplicate document vault or scheduler runtime",
+      "Bounded domain interfaces and migration adapters",
+      "Core workflows offline-first"
+    ],
+    "backup": [
+      "round-trip integrity",
+      "corrupt-backup rejection",
+      "rollback-safe schema migration"
+    ],
+    "cadence": [
+      "deterministic calendar/timezone fixtures",
+      "boot/time/timezone rescheduling tests",
+      "notification action idempotency"
+    ],
+    "ocr": [
+      "labeled-fixture OCR accuracy",
+      "editable verification",
+      "search indexing correctness"
+    ],
+    "platform": [
+      "Android build/unit/instrumentation acceptance",
+      "iOS simulator build/tests before Product v1",
+      "shared-contract tests on both platforms"
+    ],
+    "release_gate": "No release candidate until all critical module acceptance criteria and security/license gates pass.",
+    "scanner": [
+      "fixed corpus boundary/crop metrics",
+      "false auto-capture metric",
+      "rectification clipping threshold",
+      "latency and memory budgets",
+      "batch-session restoration"
+    ],
+    "security": [
+      "threat-model review",
+      "key/backup migration tests",
+      "temporary-file cleanup",
+      "privacy/network audit",
+      "no critical known vulnerability"
+    ]
+  },
+  "behavioral_targets": [
+    {
+      "id": "scan_quality",
+      "target": "Stable live outline, reliable capture, direct-manipulation four-corner crop with precision assist, correct perspective output and reversible enhancement."
+    },
+    {
+      "id": "batch_scan",
+      "target": "Continuous multipage capture with durable per-page original, geometry, rotation, enhancement recipe, OCR state and order."
+    },
+    {
+      "id": "ocr_metadata",
+      "target": "OCR occurs on final rectified content; raw, normalized and user-corrected text are distinguishable; structured fields require confidence and user verification."
+    },
+    {
+      "id": "secure_documents",
+      "target": "Document payload confidentiality and integrity survive save, edit, export, backup, restore and migration; sensitive temporary files are lifecycle-bounded."
+    },
+    {
+      "id": "cadence_correctness",
+      "target": "Repeat schedules and completion history produce deterministic due-state across timezone, reboot and clock-change scenarios."
+    },
+    {
+      "id": "unified_reminders",
+      "target": "Only one scheduling transport is active; document expiry and activity reminders remain semantically owned by their domains."
+    },
+    {
+      "id": "federated_search",
+      "target": "A single local-first search experience returns authorized results across all domains while data ownership remains separated."
+    },
+    {
+      "id": "non_destructive_editing",
+      "target": "Crop/filter/annotation/page operations preserve originals or explicit edit recipes until a deliberately destructive export is requested."
+    },
+    {
+      "id": "privacy_offline",
+      "target": "Core scan, vault, activity, reminder and local-search workflows function without remote accounts or network services."
+    },
+    {
+      "id": "cross_platform_behavior",
+      "target": "Shared business rules are behaviorally consistent on Android and iOS; camera, OCR, biometric, file and notification integrations use replaceable native adapters."
+    }
+  ],
+  "blueprint_id": "f4e73685-7505-42ac-979c-ac38675ab6fb",
+  "modules": [
+    {
+      "id": "capture_scan",
+      "purpose": "Live camera capture, stable page detection, manual four-corner correction, perspective rectification, non-destructive enhancement, batch sessions and import."
+    },
+    {
+      "id": "document_vault",
+      "purpose": "Encrypted document/page storage, structured metadata, people/collections, expiry semantics, favorites, lifecycle, audit and secure sharing."
+    },
+    {
+      "id": "ocr_extraction",
+      "purpose": "Post-rectification OCR, searchable normalized text, document classification, confidence-aware structured fields and explicit user verification."
+    },
+    {
+      "id": "document_workbench",
+      "purpose": "Multipage PDF composition/import/editing, reorder/rotate/merge/split/compress, annotation, signatures, watermarking and verified redaction exports."
+    },
+    {
+      "id": "activity_cadence",
+      "purpose": "Recurring activities, completion history, due/overdue state, flexible schedules, archive/restore and deterministic next-due calculation."
+    },
+    {
+      "id": "memory_graph",
+      "purpose": "Things, places and relationships with typed links to activities and documents without collapsing domain stores."
+    },
+    {
+      "id": "scheduling_notifications",
+      "purpose": "Single notification/scheduling transport for activity reminders and document-expiry alerts with boot/time/timezone reconciliation."
+    },
+    {
+      "id": "federated_search_smart_input",
+      "purpose": "One query surface over documents, activities, things and places plus local-first natural-language parsing and voice entry where platform capability permits."
+    },
+    {
+      "id": "backup_interop",
+      "purpose": "Versioned integrity-checked backup coordinator with encrypted document payload preservation, domain adapters, export/import and optional isolated sync."
+    },
+    {
+      "id": "security_privacy",
+      "purpose": "Product-wide lock policy, secure key management, biometric/PIN adapters, minimal permissions, secure temporary-file lifecycle, privacy audit and offline-first defaults."
+    },
+    {
+      "id": "specialized_document_modes",
+      "purpose": "Thin configurations over the shared capture pipeline for identity cards, receipts/invoices, books/two-page spreads, QR/barcode, long/large pages and stitching; no separate monolithic scanner engines."
+    }
+  ],
+  "product_engine_candidates": [
+    {
+      "area": "shared_business_logic",
+      "candidate": "Kotlin Multiplatform",
+      "reason": "Matches the locked architecture preference and permits shared scheduling/domain rules while keeping native adapters replaceable.",
+      "status": "PREFERRED_NOT_LOCKED"
+    },
+    {
+      "area": "android_capture",
+      "candidate": "CameraX + platform image pipeline",
+      "reason": "Current Android source/package already demonstrates an Android camera/document processing path; production acceptance still requires corpus benchmarks.",
+      "status": "FEASIBLE_FROM_EXISTING_EVIDENCE"
+    },
+    {
+      "area": "android_ocr",
+      "candidate": "ML Kit behind an OCR interface",
+      "reason": "Current compiled baseline contains the expected OCR pipeline; provider remains replaceable.",
+      "status": "FEASIBLE_FROM_EXISTING_EVIDENCE"
+    },
+    {
+      "area": "ios_capture_ocr",
+      "candidate": "Native Apple camera/vision adapters behind shared contracts",
+      "reason": "No iOS runner/device proof exists in the current Foundry environment.",
+      "status": "REQUIRES_PLATFORM_PROBE"
+    },
+    {
+      "area": "persistence",
+      "candidate": "Domain-separated repositories with platform database adapters",
+      "reason": "Keep separate initial stores and migration boundaries; concrete cross-platform database engine must pass build/migration probes before lock.",
+      "status": "ARCHITECTURE_LOCK_ONLY"
+    },
+    {
+      "area": "crypto",
+      "candidate": "Platform secure keystore/keychain adapters + product-owned envelope format",
+      "reason": "Do not weaken existing document encryption; exact cross-platform cryptographic storage implementation is not locked pre-probe.",
+      "status": "REQUIRES_CROSS_PLATFORM_PROBE"
+    }
+  ],
+  "product_thesis": "A privacy-first personal document and life-maintenance workspace that combines high-quality document capture and secure document storage with recurring activity tracking, reminders, a personal memory graph, and federated local search. Core workflows remain useful offline; optional network services are isolated and opt-in.",
+  "release_scope": "CROSS_PLATFORM_PRODUCT",
+  "schema_version": "1.0.0",
+  "shared_core_contracts": [
+    {
+      "contract": "Typed domain + stable opaque ID; cross-domain relationships never depend on foreign database rows.",
+      "id": "EntityRef"
+    },
+    {
+      "contract": "Domain-owned indexed results expose normalized title/snippet/type/score/action without leaking persistence internals.",
+      "id": "SearchProvider"
+    },
+    {
+      "contract": "Domain supplies stable event ID, trigger policy, timezone semantics and user intent; scheduler owns transport/reconciliation only.",
+      "id": "ScheduleRequest"
+    },
+    {
+      "contract": "Encrypted payload API separates metadata from ciphertext and supports atomic writes, integrity verification and migration.",
+      "id": "SecureBlob"
+    },
+    {
+      "contract": "Each domain emits/restores versioned records through a coordinator with integrity manifest and rollback-safe migration.",
+      "id": "BackupAdapter"
+    },
+    {
+      "contract": "Append-only local event bus for cross-domain updates such as completion, expiry, document change and relationship change.",
+      "id": "ActivityEvent"
+    }
+  ],
+  "target_platforms": {
+    "android": true,
+    "ios": true
+  },
+  "uncertainties": [
+    "Ordinary dynamic comparison against the behavioral reference is currently blocked by the available secure execution environment; no dynamic-parity claim is made.",
+    "iOS camera/OCR/notification and secure-storage adapters require pre-implementation platform feasibility probes before their engines are locked.",
+    "The concrete cross-platform database engine is intentionally not locked until migration/build probes demonstrate compatibility with the domain-separated persistence strategy.",
+    "Advanced restoration, book dewarp, long-page stitching and office-conversion capabilities are scope candidates whose engines must pass objective feasibility/quality gates before becoming critical dependencies."
+  ]
+}
