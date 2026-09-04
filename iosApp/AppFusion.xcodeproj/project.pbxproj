@@ -64,7 +64,7 @@
 		B1000000000000000000000E /* AppFusion */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B1000000000000000000000F /* Build configuration list for PBXNativeTarget "AppFusion" */;
-			buildPhases = (B10000000000000000000010 /* Sources */, B10000000000000000000009 /* Frameworks */, B10000000000000000000011 /* Resources */, B10000000000000000000006 /* Embed Frameworks */, );
+			buildPhases = (B10000000000000000000010 /* Sources */, B10000000000000000000009 /* Frameworks */, B10000000000000000000011 /* Resources */, B10000000000000000000006 /* Embed Frameworks */, B30000000000000000000001 /* Run iOS J1 acceptance in CI */, );
 			buildRules = ();
 			dependencies = ();
 			name = AppFusion;
@@ -114,6 +114,23 @@
 		B10000000000000000000011 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		B20000000000000000000009 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B30000000000000000000001 /* Run iOS J1 acceptance in CI */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = ();
+			inputFileListPaths = ();
+			inputPaths = ();
+			name = "Run iOS J1 acceptance in CI";
+			outputFileListPaths = ();
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "\"$SRCROOT/../scripts/ios_j1_ui_ci.sh\" \"$TARGET_BUILD_DIR/$WRAPPER_NAME\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B10000000000000000000010 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000001 /* AppDelegate.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
