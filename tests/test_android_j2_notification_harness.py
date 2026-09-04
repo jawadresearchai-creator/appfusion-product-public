@@ -45,7 +45,8 @@ class AndroidJ2NotificationHarnessTests(unittest.TestCase):
         self.assertIn('delivery_post_count', script)
         self.assertIn('result["native_notification_delivery_accepted"] = True', script)
         self.assertIn('result["android_j2_criterion"] = "PASS"', script)
-        self.assertIn('result["j2_fully_accepted"] = False', script)
+        self.assertIn('"j2_fully_accepted": False', script)
+        self.assertNotIn('result["j2_fully_accepted"] = True', script)
 
 
 if __name__ == "__main__":
