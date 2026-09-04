@@ -2,6 +2,7 @@ package com.appfusion.product
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Build
@@ -75,6 +76,10 @@ class MainActivity : Activity() {
             textSize = 15f
             setTextColor(Color.rgb(74, 89, 84))
             setPadding(0, dp(4), 0, dp(22))
+        })
+        page.addView(primaryButton("Activities & cadence").apply {
+            id = R.id.open_activities
+            setOnClickListener { startActivity(Intent(this@MainActivity, ActivityHistoryActivity::class.java)) }
         })
         page.addView(sectionTitle("Create encrypted document"))
         titleInput = input("Title", singleLine = true).apply { id = R.id.document_title }

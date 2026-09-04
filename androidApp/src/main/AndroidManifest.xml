@@ -6,6 +6,7 @@
         android:label="AppFusion"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppFusion">
+        <activity android:name=".ActivityHistoryActivity" android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

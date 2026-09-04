@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="open_activities" type="id" />
+    <item name="activity_title" type="id" />
+    <item name="activity_days" type="id" />
+    <item name="activity_time" type="id" />
+    <item name="activity_zone" type="id" />
+    <item name="activity_follow_zone" type="id" />
+    <item name="activity_save" type="id" />
+    <item name="activity_status" type="id" />
+    <item name="activity_list" type="id" />
+    <item name="activity_complete" type="id" />
+    <item name="activity_history" type="id" />
     <item name="document_title" type="id" />
     <item name="document_body" type="id" />
     <item name="save_document" type="id" />
